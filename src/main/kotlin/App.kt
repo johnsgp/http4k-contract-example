@@ -10,6 +10,7 @@ import org.http4k.server.asServer
 import kotlin.random.Random
 
 fun main() {
+    val contentTypeJsonApi = ContentType("application/vnd.api+json")
     val responseBody = Jackson.autoBody<ResponseData>().toLens()
     val responseExample = ResponseData(listOf(Thing("1")))
 
@@ -18,11 +19,11 @@ fun main() {
         descriptionPath = "/docs/swagger.json"
 
         routes += "/" meta {
-            produces += ContentType("application/vnd.api+json")
+            produces += contentTypeJsonApi
             returning(Status.OK, responseBody to responseExample)
         } bindContract Method.GET to {
             val id = Random.nextInt(1, 20000).toString()
-            Body.auto<ResponseData>().toLens().inject(
+            Body.auto<ResponseData>(contentType = contentTypeJsonApi).toLens().inject(
                 ResponseData(listOf(Thing(id))),
                 Response(Status.OK)
             )
